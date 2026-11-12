@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GoldWise — Gold Investment Intelligence</title>
+  <!-- Google Fonts: Newsreader (Editorial Serif), Playfair Display, Cinzel, Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css" />
   <script>
     (function() {
@@ -23,10 +27,8 @@
   <!-- LEFT SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      </svg>
-      <div class="brand-name">Gold<span>Wise</span></div>
+      <div class="brand-coin" aria-hidden="true"></div>
+      <div class="brand-name">GoldWise</div>
     </div>
 
     <nav class="nav-menu">
@@ -134,7 +136,7 @@
       <!-- 1. OVERVIEW TAB -->
       <section class="page-tab active" id="tab-overview">
         <div class="kpi-grid">
-          <div class="kpi-card">
+          <div class="kpi-card kpi-featured">
             <div class="kpi-label" style="display:flex; justify-content:space-between; align-items:center;">
               <span>Benchmark Price</span>
               <span class="tag-note" id="ov-bench-status" style="font-size:0.65rem;">—</span>

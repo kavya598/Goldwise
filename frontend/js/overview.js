@@ -152,8 +152,8 @@ function renderOverviewChart(chartData) {
     type: 'scatter',
     mode: 'lines',
     fill: 'tozeroy',
-    fillcolor: isDark ? 'rgba(231, 188, 104, 0.14)' : 'rgba(152, 115, 61, 0.12)',
-    line: { color: goldColor, width: 2.2 },
+    fillcolor: isDark ? 'rgba(236, 196, 106, 0.22)' : 'rgba(196, 155, 56, 0.14)',
+    line: { color: goldColor, width: 2.4 },
     hovertemplate: '₹%{y:,.2f} / g<extra></extra>'
   };
 
