@@ -259,9 +259,9 @@ body {
 
 .brand-name {
   font-family: var(--font-heading);
-  font-size: 1.45rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.3px;
   color: var(--text-heading);
 }
 
@@ -284,7 +284,7 @@ body {
   border-radius: 14px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.94rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -321,7 +321,7 @@ body {
 }
 
 .sidebar-secondary .nav-item {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
@@ -344,11 +344,9 @@ body {
 
 .page-heading {
   font-family: var(--font-heading);
-  font-size: 2.15rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
   color: var(--text-heading);
-  line-height: 1.2;
 }
 
 .top-actions {
@@ -434,10 +432,10 @@ body {
 
 .card-title {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-heading);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -451,7 +449,7 @@ body {
   gap: 6px;
   padding: 9px 18px;
   border-radius: var(--radius-button);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
@@ -489,9 +487,9 @@ body {
 
 .period-pill {
   padding: 4px 12px;
-  font-size: 0.80rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  border-radius: 20px;
+  border-radius: 4px;
   cursor: pointer;
   background: transparent;
   border: none;
@@ -537,15 +535,15 @@ body {
 }
 
 .kpi-label {
-  font-size: 0.84rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   letter-spacing: 0.1px;
 }
 
 .kpi-value {
-  font-size: 1.45rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--text);
   font-variant-numeric: tabular-nums;
@@ -553,7 +551,7 @@ body {
 }
 
 .kpi-sub {
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   margin-top: 4px;
 }
@@ -606,8 +604,8 @@ body {
   border-left: 3px solid var(--primary);
   border-radius: 12px;
   padding: 14px 18px;
-  font-size: 0.86rem;
-  line-height: 1.5;
+  font-size: 0.82rem;
+  line-height: 1.45;
   color: var(--banner-text);
   box-shadow: var(--banner-shadow);
 }
@@ -645,7 +643,7 @@ body {
   background-color: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 8px;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
 }
 
 .performer-name {
@@ -687,14 +685,14 @@ body {
 
 .category-header {
   font-family: var(--font-heading);
-  font-size: 1.05rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--primary);
   margin-bottom: 6px;
 }
 
 .category-stat {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 4px;
@@ -702,7 +700,7 @@ body {
 }
 
 .category-desc {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
@@ -721,7 +719,7 @@ body {
 table.gw-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   text-align: left;
 }
 
@@ -731,7 +729,7 @@ table.gw-table th {
   font-weight: 700;
   padding: 12px 14px;
   border-bottom: 1px solid var(--card-border);
-  font-size: 0.80rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -753,7 +751,7 @@ table.gw-table tr:hover td {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -778,7 +776,7 @@ table.gw-table tr:hover td {
 }
 
 .tag-note {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   border: 1px dashed var(--card-border);
   padding: 2px 6px;
@@ -803,7 +801,7 @@ table.gw-table tr:hover td {
   color: var(--text);
   padding: 8px 14px;
   border-radius: var(--radius-input);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   outline: none;
   cursor: pointer;
 }
@@ -829,7 +827,7 @@ table.gw-table tr:hover td {
 
 .form-label {
   display: block;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
   margin-bottom: 6px;
   font-weight: 600;
@@ -888,7 +886,7 @@ table.gw-table tr:hover td {
 .chat-bubble {
   padding: 14px 16px;
   border-radius: 12px;
-  font-size: 0.90rem;
+  font-size: 0.88rem;
   line-height: 1.55;
 }
 
@@ -1203,7 +1201,7 @@ table.gw-table tr:hover td {
 }
 
 .detail-stat-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -1211,7 +1209,7 @@ table.gw-table tr:hover td {
 }
 
 .detail-stat-val {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--text);
   margin-top: 2px;
