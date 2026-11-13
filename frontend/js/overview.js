@@ -5,6 +5,7 @@
 let currentOverviewPeriod = '1Y';
 let currentPerfPeriod = '1Y';
 let cachedOverviewData = null;
+const _overviewCache = new Map();
 
 document.addEventListener('DOMContentLoaded', () => {
   loadOverview(currentOverviewPeriod, currentPerfPeriod);
@@ -36,78 +37,92 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('dataRefreshed', () => {
+    _overviewCache.clear();
     loadOverview(currentOverviewPeriod, currentPerfPeriod);
   });
 });
 
 async function loadOverview(period = '1Y', perfPeriod = '1Y') {
+  const cacheKey = `${period}_${perfPeriod}`;
+  if (_overviewCache.has(cacheKey)) {
+    applyOverviewData(_overviewCache.get(cacheKey), perfPeriod);
+    return;
+  }
   try {
     const res = await fetch(`/api/overview?period=${period}&perf_period=${perfPeriod}`);
     const data = await res.json();
-    cachedOverviewData = data;
+    _overviewCache.set(cacheKey, data);
+    applyOverviewData(data, perfPeriod);
+  } catch (err) {
+    console.error('Failed to load overview:', err);
+  }
+}
 
-    // KPIs
-    const b = data.benchmark;
-    document.getElementById('ov-bench-price').textContent = `₹${b.latest_price.toLocaleString('en-IN')}`;
-    document.getElementById('ov-bench-meta').textContent = `INR/g · ${b.date}`;
+function applyOverviewData(data, perfPeriod = '1Y') {
+  cachedOverviewData = data;
 
-    const statusEl = document.getElementById('ov-bench-status');
-    if (statusEl) {
-      statusEl.textContent = b.price_status || 'Historical';
-      statusEl.style.color = (b.price_status || '').includes('Live') ? 'var(--success)' : 'var(--text-muted)';
+  // KPIs
+  const b = data.benchmark;
+  document.getElementById('ov-bench-price').textContent = `₹${b.latest_price.toLocaleString('en-IN')}`;
+  document.getElementById('ov-bench-meta').textContent = `INR/g · ${b.date}`;
+
+  const statusEl = document.getElementById('ov-bench-status');
+  if (statusEl) {
+    statusEl.textContent = b.price_status || 'Historical';
+    statusEl.style.color = (b.price_status || '').includes('Live') ? 'var(--success)' : 'var(--text-muted)';
+  }
+
+  const todayEl = document.getElementById('ov-bench-today');
+  if (todayEl) {
+    if (b.today_change_inr !== null && b.today_change_inr !== undefined && b.today_change_pct !== null) {
+      const sign = b.today_change_inr >= 0 ? '+' : '-';
+      const cls = b.today_change_inr >= 0 ? 'val-up' : 'val-down';
+      todayEl.innerHTML = `Today: <span class="${cls}" style="font-weight:600;">${sign}₹${Math.abs(b.today_change_inr).toLocaleString('en-IN')} (${b.today_change_pct >= 0 ? '+' : ''}${b.today_change_pct}%)</span>`;
+    } else {
+      todayEl.textContent = 'Today change: N/A';
     }
+  }
 
-    const todayEl = document.getElementById('ov-bench-today');
-    if (todayEl) {
-      if (b.today_change_inr !== null && b.today_change_inr !== undefined && b.today_change_pct !== null) {
-        const sign = b.today_change_inr >= 0 ? '+' : '-';
-        const cls = b.today_change_inr >= 0 ? 'val-up' : 'val-down';
-        todayEl.innerHTML = `Today: <span class="${cls}" style="font-weight:600;">${sign}₹${Math.abs(b.today_change_inr).toLocaleString('en-IN')} (${b.today_change_pct >= 0 ? '+' : ''}${b.today_change_pct}%)</span>`;
-      } else {
-        todayEl.textContent = 'Today change: N/A';
-      }
-    }
+  const chgEl = document.getElementById('ov-1y-change');
+  const chg = b.change_1y_pct;
+  chgEl.textContent = chg !== null ? `${chg > 0 ? '+' : ''}${chg}%` : '—';
+  chgEl.className = 'kpi-value ' + (chg >= 0 ? 'val-up' : 'val-down');
 
-    const chgEl = document.getElementById('ov-1y-change');
-    const chg = b.change_1y_pct;
-    chgEl.textContent = chg !== null ? `${chg > 0 ? '+' : ''}${chg}%` : '—';
-    chgEl.className = 'kpi-value ' + (chg >= 0 ? 'val-up' : 'val-down');
+  document.getElementById('ov-count-sgb').textContent = data.counts.SGB;
+  document.getElementById('ov-count-etf').textContent = data.counts.ETF;
+  document.getElementById('ov-count-fof').textContent = data.counts.FOF;
 
-    document.getElementById('ov-count-sgb').textContent = data.counts.SGB;
-    document.getElementById('ov-count-etf').textContent = data.counts.ETF;
-    document.getElementById('ov-count-fof').textContent = data.counts.FOF;
+  const srcEl = document.getElementById('ov-chart-source');
+  if (srcEl) {
+    srcEl.textContent = `Source · ${b.source} · Obs: ${b.date} · Historical thru ${b.historical_end_date} · Status: ${b.price_status}`;
+  }
 
-    const srcEl = document.getElementById('ov-chart-source');
-    if (srcEl) {
-      srcEl.textContent = `Source · ${b.source} · Obs: ${b.date} · Historical thru ${b.historical_end_date} · Status: ${b.price_status}`;
-    }
+  if (data.data_status_panel && window.updateHeaderStatusUI) {
+    window.updateHeaderStatusUI(data.data_status_panel);
+  }
 
-    if (data.data_status_panel && window.updateHeaderStatusUI) {
-      window.updateHeaderStatusUI(data.data_status_panel);
-    }
+  // Chart
+  renderOverviewChart(data.chart);
 
-    // Chart
-    renderOverviewChart(data.chart);
+  // Top & Bottom performers
+  const perfLabel = perfPeriod === '1D' ? 'Today' : perfPeriod;
+  const topTitle = document.getElementById('ov-perf-title');
+  const botTitle = document.getElementById('ov-bot-title');
+  if (topTitle) topTitle.textContent = `Top performers (${perfLabel})`;
+  if (botTitle) botTitle.textContent = `Bottom performers (${perfLabel})`;
 
-    // Top & Bottom performers
-    const perfLabel = perfPeriod === '1D' ? 'Today' : perfPeriod;
-    const topTitle = document.getElementById('ov-perf-title');
-    const botTitle = document.getElementById('ov-bot-title');
-    if (topTitle) topTitle.textContent = `Top performers (${perfLabel})`;
-    if (botTitle) botTitle.textContent = `Bottom performers (${perfLabel})`;
-
-    const topEl = document.getElementById('ov-top-performers');
-    topEl.innerHTML = data.top_performers.length
-      ? data.top_performers.map(p => `
-        <div class="performer-item">
-          <div>
-            <span class="tag tag-${p.category.toLowerCase()}" style="margin-right:6px;">${p.category}</span>
-            <span class="performer-name" title="${p.name}">${p.symbol}</span>
-          </div>
-          <span class="performer-val ${p.return_pct >= 0 ? 'val-up' : 'val-down'}">${p.return_pct > 0 ? '+' : ''}${p.return_pct}%</span>
+  const topEl = document.getElementById('ov-top-performers');
+  topEl.innerHTML = data.top_performers.length
+    ? data.top_performers.map(p => `
+      <div class="performer-item">
+        <div>
+          <span class="tag tag-${p.category.toLowerCase()}" style="margin-right:6px;">${p.category}</span>
+          <span class="performer-name" title="${p.name}">${p.symbol}</span>
         </div>
-      `).join('')
-      : '<div style="color:var(--text-muted); font-size:0.8rem;">Insufficient data for selected period (N/A).</div>';
+        <span class="performer-val ${p.return_pct >= 0 ? 'val-up' : 'val-down'}">${p.return_pct > 0 ? '+' : ''}${p.return_pct}%</span>
+      </div>
+    `).join('')
+    : '<div style="color:var(--text-muted); font-size:0.8rem;">Insufficient data for selected period (N/A).</div>';
 
     const botEl = document.getElementById('ov-bottom-performers');
     botEl.innerHTML = data.bottom_performers.length

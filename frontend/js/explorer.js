@@ -4,9 +4,13 @@
 
 let explorerSearchQuery = '';
 let selectedExplorerSymbols = new Set(['GOLDBEES', 'SGBAPR28I']);
+const _explorerCache = new Map();
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadExplorer();
+  // Lazy-load: only execute if user started directly on the Explorer tab
+  if (AppState.currentTab === 'explorer') {
+    loadExplorer();
+  }
 
   ['exp-category', 'exp-issuer', 'exp-expense', 'exp-aum', 'exp-period'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', () => loadExplorer());
@@ -44,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('dataRefreshed', () => {
+    _explorerCache.clear();
     loadExplorer();
   });
 });
@@ -60,10 +65,20 @@ async function loadExplorer() {
   const params = new URLSearchParams({ category, issuer, period, search: explorerSearchQuery });
   if (maxExp !== '') params.append('max_expense', maxExp);
   if (minAum !== '') params.append('min_aum', minAum);
+  const cacheKey = params.toString();
+
+  if (_explorerCache.has(cacheKey)) {
+    const cachedData = _explorerCache.get(cacheKey);
+    AppState.allProducts = cachedData.products;
+    renderExplorerTable(cachedData.products);
+    updateSelectedCount();
+    return;
+  }
 
   try {
-    const res = await fetch(`/api/explorer?${params.toString()}`);
+    const res = await fetch(`/api/explorer?${cacheKey}`);
     const data = await res.json();
+    _explorerCache.set(cacheKey, data);
     AppState.allProducts = data.products;
 
     // Populate Issuer dropdown once if empty

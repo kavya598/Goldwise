@@ -27,8 +27,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
 
 try:
     from google import genai
@@ -849,6 +847,8 @@ def classify_risk_profile(
 
 
 def run_kmeans_clustering(product_features: List[Dict[str, Any]], n_clusters: int = 3) -> List[Dict[str, Any]]:
+    from sklearn.cluster import KMeans
+    from sklearn.preprocessing import StandardScaler
     valid_records = [
         p for p in product_features
         if p.get("cagr") is not None and p.get("volatility") is not None
@@ -1645,6 +1645,7 @@ def fetch_intraday_data(
 
     if cat == "ETF" and hasattr(product, "yfinance_ticker") and product.yfinance_ticker:
         try:
+            import yfinance as yf
             tk = yf.Ticker(product.yfinance_ticker)
             hist = tk.history(period="1d", interval="5m")
             status_label = "Delayed Intraday (Yahoo Finance)"
@@ -1738,6 +1739,7 @@ def fetch_today_intraday_gold_inr(
 
     times, values = [], []
     try:
+        import yfinance as yf
         g_hist = yf.Ticker("GC=F").history(period="1d", interval="15m")
         fx_hist = yf.Ticker("USDINR=X").history(period="1d", interval="15m")
         if g_hist is not None and not g_hist.empty and fx_hist is not None and not fx_hist.empty:
@@ -1818,8 +1820,21 @@ class DataProviderService:
     def _sync_initial_csv_dates(self):
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if not data_loader.benchmark_series.empty:
-            self.category_status["benchmark"]["observation_date"] = data_loader.benchmark_series.index[-1].strftime("%Y-%m-%d")
-            self.category_status["benchmark"]["last_updated"] = now_str
+            latest_val = round(float(data_loader.benchmark_series.iloc[-1]), 2)
+            prev_val = round(float(data_loader.benchmark_series.iloc[-2]), 2) if len(data_loader.benchmark_series) >= 2 else latest_val
+            chg_inr = round(latest_val - prev_val, 2)
+            chg_pct = round(((latest_val / prev_val) - 1.0) * 100.0, 2) if prev_val > 0 else 0.0
+            self.category_status["benchmark"].update({
+                "status": "CSV FALLBACK",
+                "source": "Gold_Benchmark_Extended_2021_2026.csv",
+                "observation_date": data_loader.benchmark_series.index[-1].strftime("%Y-%m-%d"),
+                "last_updated": now_str,
+                "latest_price": latest_val,
+                "prev_close": prev_val,
+                "change_inr": chg_inr,
+                "change_pct": chg_pct,
+                "is_fallback": True,
+            })
         else:
             self.category_status["benchmark"]["status"] = "UNAVAILABLE"
 
@@ -1832,8 +1847,12 @@ class DataProviderService:
             if dates:
                 self.category_status[cat_key]["observation_date"] = max(dates).strftime("%Y-%m-%d")
                 self.category_status[cat_key]["last_updated"] = now_str
+                self.category_status[cat_key]["status"] = "CSV FALLBACK"
             else:
                 self.category_status[cat_key]["status"] = "UNAVAILABLE"
+
+        self._last_refresh_ts = time.time()
+        self.last_refresh_timestamp = now_str
 
     @staticmethod
     def is_valid_price(val: Any) -> bool:
@@ -1954,6 +1973,7 @@ class DataProviderService:
 
         if tickers:
             try:
+                import yfinance as yf
                 df = yf.download(tickers, period="5d", interval="1d", group_by="ticker", progress=False, threads=True, timeout=10)
                 if df is not None and not df.empty:
                     for tk, sym in ticker_to_sym.items():
@@ -2027,6 +2047,7 @@ class DataProviderService:
 
         if probe_tickers:
             try:
+                import yfinance as yf
                 df = yf.download(probe_tickers, period="5d", interval="1d", group_by="ticker", progress=False, threads=True, timeout=8)
                 if df is not None and not df.empty:
                     for p in sgbs[:5]:
@@ -2181,6 +2202,7 @@ class DataProviderService:
         self.refresh_fofs()
         self._last_refresh_ts = now
         self.last_refresh_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        clear_metrics_cache()
         return self.get_status_panel()
 
     def get_latest_gold_price_info(self) -> Dict[str, Any]:
@@ -2353,8 +2375,23 @@ def compute_product_metrics(symbol: str, period: str = "1Y", include_sgb_coupon:
     return base_dict
 
 
-def get_all_products_metrics(period: str = "1Y") -> List[Dict[str, Any]]:
-    return [compute_product_metrics(sym, period=period) for sym in data_loader.products.keys()]
+_METRICS_CACHE: Dict[Tuple[str, bool], Tuple[float, List[Dict[str, Any]]]] = {}
+_METRICS_CACHE_TTL = 600.0  # 10 minutes cache for instant subsequent calls
+
+def clear_metrics_cache():
+    _METRICS_CACHE.clear()
+
+def get_all_products_metrics(period: str = "1Y", include_sgb_coupon: bool = False) -> List[Dict[str, Any]]:
+    now = time.time()
+    cache_key = (period.upper(), bool(include_sgb_coupon))
+    if cache_key in _METRICS_CACHE:
+        cached_ts, cached_data = _METRICS_CACHE[cache_key]
+        if (now - cached_ts) < _METRICS_CACHE_TTL:
+            return cached_data
+
+    metrics = [compute_product_metrics(sym, period=period, include_sgb_coupon=include_sgb_coupon) for sym in data_loader.products.keys()]
+    _METRICS_CACHE[cache_key] = (now, metrics)
+    return metrics
 
 
 # ==============================================================================
@@ -2880,7 +2917,6 @@ def get_overview(period: str = "1Y", perf_period: str = "1Y"):
     if bench.empty:
         raise HTTPException(status_code=500, detail="Benchmark dataset unavailable")
 
-    data_provider.refresh_all(force=False)
     b_stat = data_provider.category_status.get("benchmark", {})
     latest_bench_price = b_stat.get("latest_price") or round(float(bench.iloc[-1]), 2)
     latest_bench_date = b_stat.get("observation_date") or bench.index[-1].strftime("%Y-%m-%d")
