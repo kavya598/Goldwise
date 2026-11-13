@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoldWise — Gold Investment Intelligence</title>
+  <!-- Google Fonts: Newsreader (Editorial Serif), Playfair Display, Cinzel, Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script>
+    (function() {
+      try {
+        var t = new URLSearchParams(window.location.search).get('theme') || localStorage.getItem('gw_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Plotly.js for Interactive Financial Charts -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-coin" aria-hidden="true"></div>
+      <div class="brand-name">GoldWise</div>
+    </div>
+
+    <nav class="nav-menu">
+      <button class="nav-item active" data-tab="overview">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span class="nav-label">Overview</span>
+      </button>
+
+      <button class="nav-item" data-tab="explorer">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <span class="nav-label">Explorer</span>
+      </button>
+
+      <button class="nav-item" data-tab="compare">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+          <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+        </svg>
+        <span class="nav-label">Compare</span>
+      </button>
+
+      <button class="nav-item" data-tab="simulator">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/>
+          <line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
+        </svg>
+        <span class="nav-label">Simulator</span>
+      </button>
+
+      <button class="nav-item" data-tab="shortlist">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+          <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+          <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+          <line x1="17" y1="16" x2="23" y2="16"/>
+        </svg>
+        <span class="nav-label">Shortlist</span>
+      </button>
+
+      <button class="nav-item" data-tab="assistant">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+        </svg>
+        <span class="nav-label">Ask AI</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-secondary">
+      <button class="nav-item" id="btn-sources">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span class="nav-label">Sources</span>
+      </button>
+
+      <button class="nav-item" id="btn-disclaimer">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="nav-label">Disclaimer</span>
+      </button>
+
+      <button class="nav-item" id="btn-collapse">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
+        </svg>
+        <span class="nav-label">Collapse</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="main-wrapper">
+    <!-- TOP HEADER -->
+    <header class="top-bar">
+      <h1 class="page-heading" id="page-title">Gold market overview</h1>
+      <div class="top-actions">
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="global-search" placeholder="Search products..." />
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Dark / Light Mode">
+          <svg id="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT VIEWPORT -->
+    <main class="content-viewport">
+
+      <!-- 1. OVERVIEW TAB -->
+      <section class="page-tab active" id="tab-overview">
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-featured">
+            <div class="kpi-label" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Benchmark Price</span>
+              <span class="tag-note" id="ov-bench-status" style="font-size:0.65rem;">—</span>
+            </div>
+            <div class="kpi-value" id="ov-bench-price">—</div>
+            <div class="kpi-sub" id="ov-bench-today">—</div>
+            <div class="kpi-sub" id="ov-bench-meta">loading...</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">1Y Change</div>
+            <div class="kpi-value" id="ov-1y-change">—</div>
+            <div class="kpi-sub">INR per gram (24K)</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">SGBs</div>
+            <div class="kpi-value" id="ov-count-sgb">—</div>
+            <div class="kpi-sub">Active tranches</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Gold ETFs</div>
+            <div class="kpi-value" id="ov-count-etf">—</div>
+            <div class="kpi-sub">NSE-listed funds</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Gold FoFs</div>
+            <div class="kpi-value" id="ov-count-fof">—</div>
+            <div class="kpi-sub">Mutual funds</div>
+          </div>
+        </div>
+
+        <div class="info-banner" style="margin-bottom:14px;">
+          <strong>What is Benchmark Price?</strong> It is the reference market price of 1 gram of 24K pure gold in Indian Rupees (₹). Gold ETFs, FoFs, and SGBs track this underlying gold price, minus expenses or plus bond interest.
+        </div>
+
+        <div class="overview-mid-row">
+          <div class="card overview-chart-card" style="margin-bottom:0;">
+            <div class="card-title">
+              <span>Gold benchmark</span>
+              <div class="period-pill-group" id="ov-period-pills">
+                <button class="period-pill" data-period="1D">Today</button>
+                <button class="period-pill" data-period="1M">1M</button>
+                <button class="period-pill" data-period="6M">6M</button>
+                <button class="period-pill active" data-period="1Y">1Y</button>
+                <button class="period-pill" data-period="3Y">3Y</button>
+                <button class="period-pill" data-period="5Y">5Y</button>
+              </div>
+            </div>
+            <div id="ov-benchmark-chart" style="flex:1; min-height:330px;"></div>
+            <div class="kpi-sub" id="ov-chart-source" style="margin-top:8px;">Source · GoldAPI &amp; Yahoo Finance</div>
+          </div>
+
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-title">
+              <span id="ov-perf-title">Top performers (1Y)</span>
+              <div class="period-pill-group" id="ov-perf-pills">
+                <button class="period-pill" data-perf="1D">Today</button>
+                <button class="period-pill" data-perf="1M">1M</button>
+                <button class="period-pill active" data-perf="1Y">1Y</button>
+              </div>
+            </div>
+            <div class="performers-list" id="ov-top-performers"></div>
+            <div class="card-title" style="margin-top:16px;" id="ov-bot-title">Bottom performers (1Y)</div>
+            <div class="performers-list" id="ov-bottom-performers"></div>
+          </div>
+        </div>
+
+        <div class="category-trio-row" id="ov-category-cards"></div>
+      </section>
+
+      <!-- 2. EXPLORER TAB -->
+      <section class="page-tab" id="tab-explorer">
+        <div class="info-banner" style="margin-bottom:14px;">
+          <strong>Beginner Guide:</strong> <strong>SGBs</strong> pay 2.5% annual interest &amp; have an 8-year maturity · <strong>Gold ETFs</strong> trade live on NSE (Demat required) · <strong>Gold FoFs</strong> are mutual funds with daily NAV (no Demat, SIP friendly). <em>Click any product row for 1D trading chart, SIP minimums &amp; full details.</em>
+        </div>
+
+        <div class="filter-row">
+          <select class="filter-select" id="exp-category">
+            <option value="ALL">Category: All</option>
+            <option value="SGB">SGB</option>
+            <option value="ETF">Gold ETF</option>
+            <option value="FOF">Gold FoF</option>
+          </select>
+
+          <select class="filter-select" id="exp-issuer">
+            <option value="ALL">Issuer / AMC: All</option>
+          </select>
+
+          <select class="filter-select" id="exp-expense">
+            <option value="">Expense: Any</option>
+            <option value="0.0">0% (SGBs)</option>
+            <option value="0.35">≤ 0.35%</option>
+            <option value="0.55">≤ 0.55%</option>
+          </select>
+
+          <select class="filter-select" id="exp-aum">
+            <option value="">AUM: Any</option>
+            <option value="500">≥ ₹500 Cr</option>
+            <option value="2000">≥ ₹2,000 Cr</option>
+          </select>
+
+          <select class="filter-select" id="exp-period">
+            <option value="1D">Period: Today (1D)</option>
+            <option value="1M">Period: 1M</option>
+            <option value="6M">Period: 6M</option>
+            <option value="1Y" selected>Period: 1Y</option>
+            <option value="3Y">Period: 3Y</option>
+            <option value="5Y">Period: 5Y</option>
+          </select>
+
+          <button class="btn btn-outline" id="exp-reset">Reset</button>
+        </div>
+
+        <div class="info-banner" id="cmp-takeaway" style="margin-bottom:14px; display:none;"></div>
+
+        <div class="table-container">
+          <table class="gw-table">
+            <thead>
+              <tr>
+                <th style="width:40px;"><input type="checkbox" id="exp-select-all" disabled /></th>
+                <th>Product</th>
+                <th>Type</th>
+                <th>Price / NAV (Today)</th>
+                <th>Min Investment</th>
+                <th>Expense</th>
+                <th id="exp-period-col">1Y Return</th>
+                <th>Risk Tier</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="exp-table-body"></tbody>
+          </table>
+        </div>
+
+        <div class="floating-action-bar">
+          <span id="exp-selected-count" style="font-size:0.88rem; color:var(--text-muted);">0 selected</span>
+          <button class="btn btn-primary" id="btn-compare-selected">Compare selected</button>
+        </div>
+      </section>
+
+      <!-- 3. COMPARE TAB -->
+      <section class="page-tab" id="tab-compare">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;" id="cmp-chips-container">
+            <!-- Selected chips dynamically populated -->
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <label style="font-size:0.8rem; color:var(--text-muted); display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" id="cmp-sgb-coupon" /> Include SGB 2.5% Coupon (Total Return)
+            </label>
+            <div class="period-pill-group" id="cmp-period-pills">
+              <button class="period-pill" data-period="1Y">1Y</button>
+              <button class="period-pill active" data-period="3Y">3Y</button>
+              <button class="period-pill" data-period="5Y">5Y</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span id="cmp-chart-title">Growth of ₹100 · common period</span>
+            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:400;" id="cmp-common-window"></span>
+          </div>
+          <div id="cmp-growth-chart" style="height:320px;"></div>
+          <div class="kpi-sub" style="margin-top:8px;">Solid: products · dashed: gold benchmark</div>
+        </div>
+
+        <div class="info-banner" id="cmp-takeaway" style="margin-bottom:14px; display:none;"></div>
+
+        <div class="table-container">
+          <table class="gw-table">
+            <thead id="cmp-table-head"></thead>
+            <tbody id="cmp-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. SIMULATOR TAB -->
+      <section class="page-tab" id="tab-simulator">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div class="period-pill-group" id="sim-tab-switcher">
+            <button class="period-pill active" data-simview="historical">Historical Backtesting</button>
+            <button class="period-pill" data-simview="future">Future Investment Planner</button>
+          </div>
+          <span style="font-size:0.78rem; color:var(--text-muted);" id="sim-mode-desc">Test how a past lump-sum or SIP investment actually performed using historical prices.</span>
+        </div>
+
+        <!-- 4A. HISTORICAL BACKTESTING -->
+        <div class="simulator-layout" id="sim-historical-panel">
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-title">Historical Inputs</div>
+
+            <div class="form-group">
+              <label class="form-label">Product</label>
+              <select class="form-select" id="sim-product"></select>
+              <div class="kpi-sub">Choose any SGB, Gold ETF, or Gold FoF to backtest.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Investment Mode</label>
+              <select class="form-select" id="sim-mode">
+                <option value="lump_sum">Lump-Sum (One-time)</option>
+                <option value="sip">Monthly SIP (Recurring)</option>
+              </select>
+              <div class="kpi-sub">Lump-sum invests once; SIP invests every month on the 1st trading day.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" id="sim-amount-label">Amount (₹)</label>
+              <input type="number" class="form-input" id="sim-amount" value="50000" min="100" step="500" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">From → To</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <input type="date" class="form-input" id="sim-start-date" />
+                <input type="date" class="form-input" id="sim-end-date" />
+              </div>
+              <div class="kpi-sub">Automatically bounded to the product's available data history.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Compare (optional)</label>
+              <select class="form-select" id="sim-compare">
+                <option value="NONE">None</option>
+                <option value="BENCHMARK">Gold Benchmark (INR/g)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" id="btn-run-sim" style="width:100%; margin-top:4px;">Run backtest</button>
+
+            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
+              <span class="tag-note">price-only</span>
+              <span class="tag-note">no taxes or fees</span>
+              <span class="tag-note">historical, not a forecast</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="kpi-card">
+                <div class="kpi-label">Invested</div>
+                <div class="kpi-value" id="sim-kpi-invested">—</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Ending value</div>
+                <div class="kpi-value" id="sim-kpi-ending">—</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Gain / loss</div>
+                <div class="kpi-value" id="sim-kpi-gain">—</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label" id="sim-kpi-rate-label">CAGR</div>
+                <div class="kpi-value" id="sim-kpi-rate">—</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Value over time</div>
+              <div id="sim-chart" style="height:320px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4B. FUTURE INVESTMENT PLANNER -->
+        <div class="simulator-layout" id="sim-future-panel" style="display:none;">
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-title">Planner Inputs</div>
+
+            <div class="form-group">
+              <label class="form-label">Reference Product (optional)</label>
+              <select class="form-select" id="fut-product">
+                <option value="">General Gold Allocation</option>
+              </select>
+              <div class="kpi-sub">Used for context; projections are based on your assumed return below.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Investment Mode</label>
+              <select class="form-select" id="fut-mode">
+                <option value="sip" selected>Monthly SIP (Recurring)</option>
+                <option value="lump_sum">Lump-Sum (One-time)</option>
+              </select>
+              <div class="kpi-sub">SIP builds wealth gradually via monthly compounding.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" id="fut-amount-label">Monthly SIP Amount (₹)</label>
+              <input type="number" class="form-input" id="fut-amount" value="5000" min="100" step="500" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Investment Duration</label>
+              <select class="form-select" id="fut-years">
+                <option value="1">1 Year</option>
+                <option value="3">3 Years</option>
+                <option value="5" selected>5 Years</option>
+                <option value="10">10 Years</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Expected Base Annual Return (%)</label>
+              <input type="number" class="form-input" id="fut-return" value="10" min="1" max="30" step="0.5" />
+              <div class="kpi-sub">We also show Conservative (-3%) &amp; Optimistic (+3%) scenarios.</div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-run-future" style="width:100%; margin-top:4px;">Calculate Scenarios</button>
+          </div>
+
+          <div>
+            <div class="info-banner" style="margin-bottom:14px; border-left:3px solid var(--warning);">
+              <strong>Disclaimer:</strong> These are <em>hypothetical mathematical scenarios</em> based on constant assumed returns — not guaranteed returns or market predictions. Actual gold prices fluctuate.
+            </div>
+
+            <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="kpi-card">
+                <div class="kpi-label">Total Invested</div>
+                <div class="kpi-value" id="fut-kpi-invested">—</div>
+                <div class="kpi-sub" id="fut-kpi-duration">—</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label" id="fut-lbl-cons">Conservative</div>
+                <div class="kpi-value" id="fut-kpi-cons">—</div>
+                <div class="kpi-sub" id="fut-gain-cons">—</div>
+              </div>
+              <div class="kpi-card" style="border-color:var(--primary);">
+                <div class="kpi-label" id="fut-lbl-base" style="color:var(--primary);">Base Case</div>
+                <div class="kpi-value" id="fut-kpi-base" style="color:var(--primary);">—</div>
+                <div class="kpi-sub" id="fut-gain-base">—</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label" id="fut-lbl-opt">Optimistic</div>
+                <div class="kpi-value val-up" id="fut-kpi-opt">—</div>
+                <div class="kpi-sub" id="fut-gain-opt">—</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Scenario Growth Projection</div>
+              <div id="fut-chart" style="height:320px;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. SHORTLIST TAB -->
+      <section class="page-tab" id="tab-shortlist">
+        <div class="simulator-layout">
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-title">Your Preferences</div>
+
+            <div class="form-group">
+              <label class="form-label">Intended Holding Period (Years)</label>
+              <select class="form-select" id="sh-horizon">
+                <option value="1">1 Year (Short-term)</option>
+                <option value="3" selected>3 Years (Medium-term)</option>
+                <option value="5">5+ Years (Long-term)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Need for Liquidity</label>
+              <select class="form-select" id="sh-liquidity">
+                <option value="High">High (Need quick intraday/daily exit)</option>
+                <option value="Moderate" selected>Moderate</option>
+                <option value="Flexible">Flexible (Can hold to maturity)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Risk Tolerance</label>
+              <select class="form-select" id="sh-risk">
+                <option value="Low">Low (Prioritize low volatility)</option>
+                <option value="Medium" selected>Medium (Balanced)</option>
+                <option value="High">High (Return focused)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Product Category Preference</label>
+              <select class="form-select" id="sh-category">
+                <option value="ALL" selected>All Categories (SGB, ETF, FoF)</option>
+                <option value="SGB">Sovereign Gold Bonds (SGB)</option>
+                <option value="ETF">Gold ETFs</option>
+                <option value="FOF">Gold FoFs (Mutual Funds)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" id="btn-run-shortlist" style="width:100%;">Generate Shortlist</button>
+          </div>
+
+          <div id="shortlist-results">
+            <div class="card">
+              <p style="color:var(--text-muted); font-size:0.9rem;">Select your preferences on the left and click "Generate Shortlist" to see transparent scoring and trade-offs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. ASK AI TAB -->
+      <section class="page-tab" id="tab-assistant">
+        <div class="assistant-layout">
+          <div class="chat-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 18px; border-bottom:1px solid var(--card-border); background:var(--sidebar-bg);">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="gw-monogram">GW</span>
+                <span style="font-size:0.85rem; font-weight:600; color:var(--text);">Goldwise Research Assistant</span>
+              </div>
+              <button class="btn btn-outline" id="btn-new-chat" style="padding:4px 10px; font-size:0.75rem;">New conversation</button>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+              <div class="chat-column">
+                <div class="chat-bubble assistant">
+                  <div class="assistant-answer">Welcome to Goldwise. I can help you understand and compare Sovereign Gold Bonds, Gold ETFs and Gold Funds of Funds using historical data. What would you like to look at?</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-quick-prompts" id="chat-starter-bar">
+              <button class="quick-prompt-chip" data-prompt="Compare two ETFs">Compare two ETFs</button>
+              <button class="quick-prompt-chip" data-prompt="Explain max drawdown">Explain max drawdown</button>
+              <button class="quick-prompt-chip" data-prompt="How do SGBs differ from ETFs?">How do SGBs differ from ETFs?</button>
+            </div>
+
+            <div class="chat-input-bar">
+              <input type="text" id="chat-input" placeholder="Ask about SGBs, Gold ETFs, Gold FoFs, or historical metrics" />
+              <button class="btn btn-primary" id="btn-chat-send">Send</button>
+            </div>
+            <div style="padding:6px 18px; font-size:0.72rem; color:var(--text-muted); text-align:center; border-top:1px solid var(--card-border); background:var(--sidebar-bg);">
+              Educational use only. Not financial advice.
+            </div>
+          </div>
+
+          <div class="source-sidebar">
+            <div class="card-title">Sources</div>
+            <div style="display:flex; flex-direction:column; gap:14px; font-size:0.82rem;">
+              <div>
+                <div style="color:var(--text-muted); font-size:0.74rem; text-transform:uppercase;">official · date</div>
+                <div style="font-weight:600; margin-top:2px;">NSE Bhavcopy &amp; AMFI NAV</div>
+                <div style="color:var(--text-muted);">Updated through 2026-11-09</div>
+              </div>
+              <div>
+                <div style="color:var(--text-muted); font-size:0.74rem; text-transform:uppercase;">derived · date</div>
+                <div style="font-weight:600; margin-top:2px;">Gold INR/g Benchmark</div>
+                <div style="color:var(--text-muted);">2021-11-01 to 2026-10-23</div>
+              </div>
+              <div>
+                <div style="color:var(--text-muted); font-size:0.74rem; text-transform:uppercase;">last refreshed</div>
+                <div style="font-weight:600; margin-top:2px;" id="ai-last-refreshed">Active Session</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      Educational use only. Not financial advice.
+    </footer>
+  </div>
+</div>
+
+<!-- MODAL FOR SOURCES / DISCLAIMER -->
+<div class="modal-overlay" id="info-modal">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 id="modal-title" style="font-size:1.15rem; color:var(--primary);">Information</h2>
+      <button class="btn btn-outline" id="modal-close" style="padding:4px 10px;">Close</button>
+    </div>
+    <div id="modal-body" style="font-size:0.86rem; line-height:1.6; color:var(--text);"></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/overview.js"></script>
+<script src="/js/explorer.js"></script>
+<script src="/js/compare.js"></script>
+<script src="/js/simulator.js"></script>
+<script src="/js/shortlist.js"></script>
+<script src="/js/assistant.js"></script>
+</body>
+</html>
