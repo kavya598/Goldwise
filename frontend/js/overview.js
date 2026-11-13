@@ -59,7 +59,8 @@ async function loadOverview(period = '1Y', perfPeriod = '1Y') {
 }
 
 function applyOverviewData(data, perfPeriod = '1Y') {
-  cachedOverviewData = data;
+  try {
+    cachedOverviewData = data;
 
   // KPIs
   const b = data.benchmark;
